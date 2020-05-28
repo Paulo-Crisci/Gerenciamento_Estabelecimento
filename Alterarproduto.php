@@ -3,15 +3,15 @@
 require_once "conexao.php";
  
 // Define as variáveis e coloca um valor vazio
-$nome = $quantidade = $fornecedor = "";
-$nome_erro = $quantidade_erro = $fornecedor_erro = "";
+$nome = $quantidade =  "";
+$nome_erro = $quantidade_erro =  "";
  
 // Processa os dados do formulário quando o formulário é submetido
 if(isset($_POST["id"]) && !empty($_POST["id"])){
     // Obter valor de entrada oculto
     $id = $_POST["id"];
     
-    // Validando nome
+    // Validando nome do produto
     $nome_informado = trim($_POST["produto"]);
     if(empty($nome_informado)){
         $nome_erro = "Por favor, entre com um nome.";
@@ -21,7 +21,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $nome = $nome_informado;
     }
     
-    // Validando endereco
+    // Validando a quantidade
     $quantidade_informado = trim($_POST["quantidade"]);
     if(empty($quantidade_informado)){
         $quantidade_erro = "Por favor, entre com um endereço.";     
@@ -29,29 +29,20 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $quantidade = $quantidade_informado;
     }
     
-    // Validate salario
-    $input_fornecedor = trim($_POST["fornecedor"]);
-    if(empty($input_fornecedor)){
-        $fornecedor_erro = "Por favor, entre com um valor numérico referente ao salário.";     
-    } elseif(!ctype_digit($input_fornecedor)){
-        $fornecedor_erro = "Por favor, entre com um valor positivo inteiro.";
-    } else{
-        $fornecedor = $input_fornecedor;
-    }
     
     // Checa os erros de entrada antes de inserir no banco
-    if(empty($nome_erro) && empty($quantidade_erro) && empty($fornecedor_erro)){
+    if(empty($nome_erro) && empty($quantidade_erro)){
         // Prepara a declaração de UPDATE
-        $sql = "UPDATE tbprodutos SET nome=?, quantidade=?, fornecedor=? WHERE id=?";
+        $sql = "UPDATE tbprodutos SET produto=?, quantidade=?  WHERE id=?";
          
         if($stmt = mysqli_prepare($conn, $sql)){
             // Vincular variáveis ​​à instrução preparada como parâmetros
-            mysqli_stmt_bind_param($stmt, "sssi", $param_nome, $param_quantidade, $param_fornecedor, $param_id);
+            mysqli_stmt_bind_param($stmt, "sss", $param_nome, $param_quantidade, $param_id);
             
             // Set parametros
             $param_nome = $nome;
-            $param_quantidade = $endereco;
-            $param_fornecedor = $salario;
+            $param_quantidade = $quantidade;
+          
             $param_id = $id;
             
             // Tentativa de executar a instrução
@@ -91,11 +82,11 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     
                 if(mysqli_num_rows($result) == 1){
                     /* Busque a linha de resultados como uma matriz associativa. Desde o conjunto de resultados
-                    contém apenas uma linha, não precisamos usar o loop while */
+                    contém apenas uma linha, não precisamos usar o loop while */
                     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
                     
                     // Retrieve individual field value
-                    $nome = $row["nome"];
+                    $nome = $row["produto"];
                     $quantidade = $row["quantidade"];
                     
                 } else{
@@ -141,23 +132,23 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
             <div class="row">
                 <div class="col-md-12">
                     <div class="page-header">
-                        <h2>Atualizar Informações</h2>
+                        <h2>Atualizar Informações do Produto</h2>
                     </div>
-                    <p>Edite os valores de entrada e envie para atualizar o registro.</p>
+                    <p>Edite os valores de entrada e envie para atualizar o produto.</p>
                     <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
                         <div class="form-group <?php echo (!empty($nome_erro)) ? 'has-error' : ''; ?>">
-                            <label>Nome</label>
-                            <input type="text" name="nome" class="form-control" value="<?php echo $nome; ?>">
+                            <label>Nome do produto</label>
+                            <input type="text" name="produto" class="form-control" value="<?php echo $nome; ?>">
                             <span class="help-block"><?php echo $nome_erro;?></span>
                         </div>
-                        <div class="form-group <?php echo (!empty($endereco_erro)) ? 'has-error' : ''; ?>">
-                            <label>Endereco</label>
+                        <div class="form-group <?php echo (!empty($quantidade_erro)) ? 'has-error' : ''; ?>">
+                            <label>Quantidade</label>
                             <textarea name="quantidade" class="form-control"><?php echo $quantidade; ?></textarea>
                             <span class="help-block"><?php echo $quantidade_erro;?></span>
                         </div>
                         
                         <input type="hidden" name="id" value="<?php echo $id; ?>"/>
-                        <input type="submit" class="btn btn-primary" value="Enviar">
+                        <input type="submit" class="btn btn-primary" value="Alterar Produto">
                         <a href="index.php" class="btn btn-default">Cancelar</a>
                     </form>
                 </div>
